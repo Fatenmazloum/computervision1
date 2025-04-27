@@ -2,26 +2,19 @@ import numpy as np
 import cv2 as cv
 import imutils #resizing, rotating, and cropping images.
 
-
-# cmd outside vscode used to install librares and pacakages and run python command
-# same here in cmd inside vscode we can run python command and check the verson of python
-#but first we should install python adn click control shift p to choose python interpretor which means in which python version you will work with
-#create python file inside folder and run it or in cmd type cd Lab2 (file founded in lab2) then python nameoffile.py to run it
-
-# bdna ntl3 500 feature bl sora, keeppercet y3ni lama le2e 20% mn l features yali 3m dawer 3lyhn bl sortyn y3ni hy sora matched image #kmn lma tl3na 500 feature m32ol orsmn kolon no bs top 20% hata ma ytl3 outlier w haw 20% features mn3mln matching
 #The goal is not just to find matching features, but to align (rotate, translate, scale) one image to make it match the other, even if one of them has been rotated, translated, or scaled. 
 def alignimage(image,template,maxfeatures=500,keeppercent=0.2,debug=False):
     imagegray=cv.cvtColor(image,cv.COLOR_BGR2GRAY)
     templategray=cv.cvtColor(template,cv.COLOR_BGR2GRAY)
-    #lma bdna n3ml preprocessing mn7wl la gray bsahel n3ml detection lal features
-    orb=cv.ORB_create(maxfeatures)#b3tha maxmm nm of features yali bna ntal3n
+    #converting image to gray helps on detection of features
+    orb=cv.ORB_create(maxfeatures)#
     #cv.ORB_create(), it's initializing the ORB feature detector(instance of ORB feauture detector)
     #After creating the ORB detector, you need to call detectAndCompute() to find the keypoints (features) and their corresponding descriptors in an image. 
     (kpA,descA)=orb.detectAndCompute(imagegray,None)
-    #kpA array of keypoints kl wehdde(size,(x,y),angle,..), descA=array[[1,0,1,0,1,],[1,0,0,1,]....awal row first keypoint and etc]
+    #kpA array of keypoints each(size,(x,y),angle,..), descA=array[[1,0,1,0,1,],[1,0,0,1,]....first row is first keypoint and etc]
     (kpB,descB)=orb.detectAndCompute(templategray,None)
-    #calculation of keypoints  anddescrptors for each imag
-    #then after calculation we make matching using  brute force with hammingdistance method
+    #calculation of keypoints  and descriptors for each image
+    #then matching using  brute force with hammingdistance method
     method=cv.DescriptorMatcher_BRUTEFORCE_HAMMING
     matcher=cv.DescriptorMatcher_create(method)
     #create instance from Descriptormatcher and give it parameter which is method iam going to use
@@ -31,7 +24,7 @@ def alignimage(image,template,maxfeatures=500,keeppercent=0.2,debug=False):
     #The matches are returned unsorted by default. Typically, you want to sort the matches based on their distance (the smaller the distance, the better the match). This will sort the list from smallest to largest distance, so the best matches (smallest distance) come first.
     matches=sorted(matches,key=lambda x:x.distance)
     keep=int(len(matches)*keeppercent)#i need 20% from list only 20 important features means first 20 features
-    matches=matches[:keep]#7wlt fo2 la int la ino la tsr ka index
+    matches=matches[:keep]#convert to int (for index)
     ptsA=np.zeros([len(matches),2],dtype="float")# 2D array 
     ptsB=np.zeros([len(matches),2],dtype="float")
     if debug:
@@ -51,7 +44,7 @@ def alignimage(image,template,maxfeatures=500,keeppercent=0.2,debug=False):
     #the function cv2.findHomography() with the RANSAC method is an important step in aligning two images by finding a transformation matrix that maps keypoints in image A to corresponding keypoints in image B(or vice).
     #This matrix includes all the information needed to perform transformations like translation, rotation, scaling, and even perspective distortion between the two images.
     (h,w)=template.shape[:2]
-    aligned=cv.warpPerspective(image,H,(w,h))#mtl wrapAfine bs btshtghl 2*3 la ino H hyi 3*3 while WraAfine bt5d 2*2
+    aligned=cv.warpPerspective(image,H,(w,h))
     return aligned
 
 image=cv.imread(r"C:\Users\asus\Desktop\Computer Vision\Lab2\image.jpg")
